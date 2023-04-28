@@ -4,12 +4,15 @@ import {
     signInWithEmailAndPassword,
 } from 'firebase/auth';
 import React, { useState } from 'react';
+import { authService, firebaseInstance } from '../../fbase';
+
 
 const Auth =  () => {
     const [inputs, setInputs] = useState({
         email: '',
         password: '',
     });
+    const [error, setError] = useState("");
     const [newAccount, setNewAccount] = useState(true);
     const { email, password } = inputs;
 
@@ -37,6 +40,22 @@ const Auth =  () => {
             console.log(error);
         }
     }
+
+    const toggleAccount = () => {
+        setNewAccount(prev => !prev);
+    }
+
+    const onSocialClick = async (event: any) => {
+        const {target: {name}} = event;
+        let provider;
+        if(name === "google") {
+            provider = new firebaseInstance.auth.GoogleAuthProvider();
+        }else return;
+        // TypeScript 에서는 조건문 처리 반환해주지 않으면 에러 발생 (여기선 provider에서 에러 발생)
+        const data = await authService.signInWithPopup(provider);
+        console.log(data);
+        console.log(event.target.name);
+    }
     return (
         <div>
             <form onSubmit={onSubmit}>
@@ -54,10 +73,11 @@ const Auth =  () => {
                     name='password'
                     onChange={onChange}
                 />
-                <input type='submit' value={newAccount ? "Create Account" : "Login"} />
+                <input type='submit' value={newAccount ? "Create Account" : "Sign In"} />
             </form>
+            <span onClick={toggleAccount}>{newAccount ? "Sign In" : "Create Account"}</span>
             <div>
-                <button>Continue with Google</button>
+                <button onClick={onSocialClick} name="google">Continue with Google</button>
             </div>
         </div>
     );
