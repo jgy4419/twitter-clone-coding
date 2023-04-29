@@ -6,17 +6,18 @@ import React from 'react';
 import Profile from './routes/Profile';
 
 interface IAppRouterProps {
-    isLoggedIn: any;
+    isLoggedIn: boolean;
+    userObj: {[key: string]: string}
 }
 
-const AppRouter =  ({isLoggedIn}: IAppRouterProps) => {
+const AppRouter =  ({isLoggedIn, userObj}: IAppRouterProps) => {
     return ( 
         <Router>
             {isLoggedIn && <Navigation />}
             <Routes>
                 {isLoggedIn ? 
                 <>
-                    <Route path='/' element={<Home/>}/>
+                    <Route path='/' element={<Home userObj={userObj}/>}/>
                     <Route path="/profile" element={<Profile/>}/>
                 </> 
                 : <Route path='/' element={<Auth/>} />}
