@@ -6,7 +6,6 @@ import {
 import React, { useState } from 'react';
 import { authService, firebaseInstance } from '../../fbase';
 
-
 const Auth =  () => {
     const [inputs, setInputs] = useState({
         email: '',
@@ -45,7 +44,12 @@ const Auth =  () => {
         setNewAccount(prev => !prev);
     }
 
-    const onSocialClick = async (event: any) => {
+    const onSocialClick = async (event: React.MouseEvent<HTMLButtonElement> & {
+        target: {
+            name: string
+        }
+    }) => {
+        console.log(event);
         const {target: {name}} = event;
         let provider;
         if(name === "google") {

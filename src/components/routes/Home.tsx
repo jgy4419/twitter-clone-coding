@@ -1,34 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { dbService } from '../../fbase';
+import Jweet from '../Jweet';
 
 interface IJweetObject {
     createAt?: number,
     jweet?: string,
-    id: string
+    id: string,
+    creatorId?: string,
+    text?: string
 }
 
 interface IHomeProps {
-    userObj: {[key: string]: string;}
+    userObj: {
+        [key: string]: string;
+    }
 }
 
 const Home = ({ userObj }: IHomeProps) => {
-    console.log(userObj);
-    
     const [jweet, setJweet] = useState("");
     const [jweets, setJweets] = useState<IJweetObject[]>([]);
-    const getJweets = async () => {
-        const dbJweets = await dbService.collection("jweets").get()
-        dbJweets.forEach(document => {
-            const jweetObject = {
-                ...document.data(),
-                id: document.id,
-            }
-            setJweets((prev) => [jweetObject, ...prev]);
-            console.log(jweets);
-        });
-    }
+    // const getJweets = async () => {
+    //     const dbJweets = await dbService.collection("jweets").get()
+    //     dbJweets.forEach(document => {
+    //         const jweetObject = {
+    //             ...document.data(),
+    //             id: document.id,
+    //         }
+    //         setJweets((prev) => [jweetObject, ...prev]);
+    //         console.log(jweets);
+    //     });
+    // }
     useEffect(() => {
-        getJweets();
+        dbService.collection("jweets").onSnapshot((snapshot) => {
+            const jweetArray = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+            setJweets(jweetArray);
+            
+        })
+        // getJweets();
     }, []);
 
     // submit 할 때 마다 document를 생성해주기
@@ -62,9 +73,13 @@ const Home = ({ userObj }: IHomeProps) => {
             </form>            
             <div>
                 {
-                    jweets.map((jweet, index) => {
+                    jweets.map((item, index) => {
                         return (
-                            <h4 key={index}>{jweet.jweet}</h4>
+                            <Jweet 
+                                key={index} 
+                                jweetObj={item} 
+                                isOwner={item.creatorId === userObj.uid} 
+                            />
                         )
                     })
                 }
