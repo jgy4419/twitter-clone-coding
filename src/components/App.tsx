@@ -4,7 +4,6 @@ import { authService } from '../fbase';
 
 function App() {
   const [init, setInit] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userObj, setUserObj] = useState<any>(null);
 
   // firebase가 프로그램을 초기화 할 때 까지 기다려주기.
@@ -13,11 +12,8 @@ function App() {
     authService.onAuthStateChanged((user) =>  {
       // autoService가 바뀐다면 우리가 받을 user에 setUserObj 넣기
       if(user) {
-        setIsLoggedIn(true);
         // 이곳에 user를 저장하고 저장된 user를 나중에 사용 가능.
         setUserObj(user);
-      }else {
-        setIsLoggedIn(false);
       }
       setInit(true);
     })
@@ -26,7 +22,7 @@ function App() {
   return (
     <>
       {/* 받은 유저를 AppRouter로 보내기 */}
-      {init ? <Router isLoggedIn={isLoggedIn} userObj={userObj}/> : "Initializing..."}
+      {init ? <Router isLoggedIn={Boolean(userObj)} userObj={userObj}/> : "Initializing..."}
       <footer>&copy; {new Date().getFullYear()} Nwitter</footer>
     </>
   )

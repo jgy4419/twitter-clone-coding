@@ -6,6 +6,7 @@ const Jweet = ({jweetObj, isOwner}: any) => {
     const [newJweet, setNewJweet] = useState(jweetObj.text);
 
     const onDeleteClick = async () => {
+        // user를 확인하고 nweet을 지우길 원하는지 확인.
         const ok = window.confirm("Are you sure want to delete this jweet?");
         console.log(ok)
         if(ok) {
@@ -33,6 +34,7 @@ const Jweet = ({jweetObj, isOwner}: any) => {
         <div>
             <div key={jweetObj.id}>
                 {
+                    // 글을 작성한 주인이고 수정을 원한다면 ? update 가능한 버튼이 생긴다.
                     editing ? <>
                         <form onSubmit={onSubmit}>
                             <input 

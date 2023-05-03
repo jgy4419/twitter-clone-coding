@@ -19,17 +19,7 @@ interface IHomeProps {
 const Home = ({ userObj }: IHomeProps) => {
     const [jweet, setJweet] = useState("");
     const [jweets, setJweets] = useState<IJweetObject[]>([]);
-    // const getJweets = async () => {
-    //     const dbJweets = await dbService.collection("jweets").get()
-    //     dbJweets.forEach(document => {
-    //         const jweetObject = {
-    //             ...document.data(),
-    //             id: document.id,
-    //         }
-    //         setJweets((prev) => [jweetObject, ...prev]);
-    //         console.log(jweets);
-    //     });
-    // }
+    const [attachment, setAttachment] = useState<string | null>();
     useEffect(() => {
         dbService.collection("jweets").onSnapshot((snapshot) => {
             const jweetArray = snapshot.docs.map(doc => ({
@@ -59,6 +49,27 @@ const Home = ({ userObj }: IHomeProps) => {
         } = event;
         setJweet(value);
     }
+    // 이미지 파일을 업로드 해주는 함수
+    const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const {
+            target: {files}
+        } = event;
+        if(files) {
+            const theFile = files[0];
+            const reader = new FileReader();
+            // 2. 여기 실행(onload : 실행이 완료되면 실행되는 함수
+            reader.onload = (finishEvent) => {
+                const {currentTarget: 
+                    {result}
+                } = finishEvent as any;
+                setAttachment(result)
+            }
+            // 1. 읽기 시작하고 다 읽으면
+            reader.readAsDataURL(theFile);
+        }
+    }
+    // 이미지를 지워주는 함수
+    const onClearAttachmentClick = () => setAttachment(null);
     return (
         <div>
             <form onSubmit={onSubmit}>
@@ -69,7 +80,16 @@ const Home = ({ userObj }: IHomeProps) => {
                     maxLength={120} 
                     onChange={onChange}
                 />
+                {/* accept로 어떤 이미지를 가져와야 되는지 파일 형식을 정해줄 수 있다.(필수는 x) */}
+                <input type="file" accept='image/*' onChange={onFileChange}/>
                 <input type="submit" value={'jweet'} />
+                {/* attachment 값이 null이 아니면 img 보여주기 */}
+                {attachment && (
+                    <div>
+                        <img src={attachment} width="50px" height="50px" alt="파일 이미지" />
+                        <button onClick={onClearAttachmentClick}>Clear</button>
+                    </div>
+                )}
             </form>            
             <div>
                 {
