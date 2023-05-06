@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { dbService } from '../fbase';
+import { dbService, storageService } from '../fbase';
 
 const Jweet = ({jweetObj, isOwner}: any) => {
     const [editing, setEditing] =  useState(false);
@@ -10,8 +10,9 @@ const Jweet = ({jweetObj, isOwner}: any) => {
         const ok = window.confirm("Are you sure want to delete this jweet?");
         console.log(ok)
         if(ok) {
-            // delete jweet
-            await dbService.doc(`jweets/${jweetObj.id}`).delete();
+            // delete jweet + delete image
+            await dbService.doc(`jweets/${jweetObj.id}`).delete(); // jweet delete
+            await storageService.refFromURL(jweetObj.attachmentUrl).delete(); // delete storage image
         }
     }
 
@@ -50,6 +51,9 @@ const Jweet = ({jweetObj, isOwner}: any) => {
                     </>
                     : <>
                         <h4>{jweetObj.text}</h4>
+                        {/* attachmentUrl 있을 때만 실행 시켜주기 왜냐하면 몇몇 
+                            jweet는 attackment 를 가지고 있지 않기 때문이다. */}
+                        {jweetObj.attachmentUrl && <img src={jweetObj.attachmentUrl} width="50px" height="50px" alt='메인 이미지'/>}
                         {
                             isOwner && <>
                                 <button onClick={onDeleteClick}>Delete Jweet</button>

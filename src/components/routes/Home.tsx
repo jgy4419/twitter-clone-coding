@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { dbService } from '../../fbase';
+import { dbService, storageService } from '../../fbase';
 import Jweet from '../Jweet';
+// uuidv4() 를 사용해주면 ex. '9b1deb4d-3b7d...' 같은 문자열을 랜덤으로 받을 수 있듬.
+import {v4 as uuidv4} from 'uuid';
 
 interface IJweetObject {
     createAt?: number,
@@ -29,18 +31,35 @@ const Home = ({ userObj }: IHomeProps) => {
             setJweets(jweetArray);
             
         })
-        // getJweets();
     }, []);
 
     // submit 할 때 마다 document를 생성해주기
-    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        dbService.collection('jweets').add({
+        /* 
+            - 사진이 있다면 사진을 올리고
+            - URL을 받아서 jweet에 넣기.
+        */
+        // 이미지가 없는 사용자들을 위해서 분리 시켜주기. 
+       let attachmentUrl = "";
+        if(attachment){
+            // reference에서 폴더를 만들 수 있다.
+            const attachmentRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+            const response = await attachmentRef.putString(attachment, "data_url");
+            // download url을 만들어줌. 해당 url을 jweet에서 사용할 것이다.
+            attachmentUrl = await response.ref.getDownloadURL();
+        }
+        // 만약 사진이 없다면 업로드 
+        const jweetObj = {
             text: jweet,
             createAt: Date.now(),
-            creatorId: userObj.uid
-        });
+            creatorId: userObj.uid,
+            attachmentUrl
+        }
+        dbService.collection('jweets').add(jweetObj);
+        
         setJweet("");
+        setAttachment("");
     }
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         // event 안에 있는 target 안에 있는 value 호출.
