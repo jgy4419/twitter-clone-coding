@@ -18,5 +18,10 @@ firebase.initializeApp(firebaseConfig);
 export const firebaseInstance = firebase;
 
 export const authService = firebase.auth();
+// firestore : 추가 | 삭제 | 수정 관련 작업을 수행할 수 있다.
 export const dbService = firebase.firestore();
+/* 
+  Storage는 기본 앱 또는 지정된 앱에 대한 서비스를 가져온다. 
+  기본 앱의 서비스에 액세스하거나 특정 앱과 연결된 서비스에 액세스하기 위해 호출할 수 있다.
+*/
 export const storageService = firebase.storage();

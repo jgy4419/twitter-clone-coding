@@ -13,16 +13,31 @@ function App() {
       // autoService가 바뀐다면 우리가 받을 user에 setUserObj 넣기
       if(user) {
         // 이곳에 user를 저장하고 저장된 user를 나중에 사용 가능.
-        setUserObj(user);
+        setUserObj({
+          displayName: user.displayName,
+          uid: user.uid,
+          updateProfile: (args: { displayName?: string | null | undefined; photoURL?: string | null | undefined; }) => user.updateProfile(args)
+        });
       }
       setInit(true);
     })
   }, []);
   // init 값이 false라면 router를 숨기기 때문에 true로 변경 시켜줘야 된다.
+
+  const refreshUser = () => {
+    const user = authService.currentUser;
+    if(user !== null) {
+      setUserObj({
+        displayName: user.displayName,
+        uid: user.uid,
+        updateProfile: (args: { displayName?: string | null | undefined; photoURL?: string | null | undefined; }) => user.updateProfile(args)
+      });
+    }
+  }
   return (
     <>
       {/* 받은 유저를 AppRouter로 보내기 */}
-      {init ? <Router isLoggedIn={Boolean(userObj)} userObj={userObj}/> : "Initializing..."}
+      {init ? <Router refreshUser={refreshUser} isLoggedIn={Boolean(userObj)} userObj={userObj}/> : "Initializing..."}
       <footer>&copy; {new Date().getFullYear()} Nwitter</footer>
     </>
   )

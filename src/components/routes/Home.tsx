@@ -23,6 +23,7 @@ const Home = ({ userObj }: IHomeProps) => {
     const [jweets, setJweets] = useState<IJweetObject[]>([]);
     const [attachment, setAttachment] = useState<string | null>();
     useEffect(() => {
+        // jweets collection에 있는 snapshot(데이터들)을 모두 가져와서 jweets state에 넣어주기.
         dbService.collection("jweets").onSnapshot((snapshot) => {
             const jweetArray = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -44,12 +45,29 @@ const Home = ({ userObj }: IHomeProps) => {
        let attachmentUrl = "";
         if(attachment){
             // reference에서 폴더를 만들 수 있다.
+            /* 
+                .ref()는 기본 버킷의 지정된 경로에 대한 참조를 반환한다. 
+                .child() 메소드는 해당 참조에서 상대 경로에 대한 참조를 반환한다.
+                    - 사진에 이름을 줄 수 있다. 겹치면 안되므로 uuid 라이브러리를 사용해 주기. (유저아이디/랜덤문자열)
+                    - 이미지의 path넣기. .collection()이랑 매우 비슷하다.
+            */
             const attachmentRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+            /* 
+                putString()에는 data랑 data의 형식이 필요하다.
+                - data : attachment(이미지 전체)
+                - 형식(format) : data_url(임의로 지정)
+                결과로 콘솔의 Storage에 이미지 폴더랑 그 내부에 우리가 적용한 이미지가 들어간 것을 볼 수 있다.
+            */
             const response = await attachmentRef.putString(attachment, "data_url");
-            // download url을 만들어줌. 해당 url을 jweet에서 사용할 것이다.
+            /* 
+                download url을 만들어줌. 해당 url을 jweet에서 사용할 것이다.
+                response를 쓸 때 .ref경로에 들어가서 .getDownloadURL()를 사용해야된다.
+                attachmentUrl은 우리가 적용하려고 했던 이미지를 실제로 웹상에서 볼 수 있는 url을 받아온다. 이 url을 jweet(collection)에 사용해주기. 
+            */
             attachmentUrl = await response.ref.getDownloadURL();
         }
         // 만약 사진이 없다면 업로드 
+        // jweetObj는 업로드할 게시글 내용 형식을 객체로 담앙서 dbService.collection('jweets').add(); 에 .add(jweetObj)안에 넣어준다.
         const jweetObj = {
             text: jweet,
             createAt: Date.now(),

@@ -11,7 +11,16 @@ const Jweet = ({jweetObj, isOwner}: any) => {
         console.log(ok)
         if(ok) {
             // delete jweet + delete image
+            /* 
+                .doc()은 DocumentReference 에서 지정된 경로에서 문서를 참조하는 인스턴스를 가져온다.
+                안자 : 문서 경로(슬래시로 구분된 문서 경로. 문자열로 넣어주기.) "collection명/jweet아이디" 즉, 게시글 을 가져오고 .delete()로 삭제를 시켜주는 식.
+                .doc()과 연결해서 쓸 수 있는 메서드는 collection, onSnapshot, delete, set, get, update, isEqual, withConverter가 있다.
+            */
             await dbService.doc(`jweets/${jweetObj.id}`).delete(); // jweet delete
+            /* 
+                .refFromURL method는 주어진 절대 URL에 대한 참조를 반환한다.
+                .refFromURL랑 연결해서 사용할 수 있는 method는 child, listAll, delete, put, list, toString, putString 등이 있다.
+            */
             await storageService.refFromURL(jweetObj.attachmentUrl).delete(); // delete storage image
         }
     }
@@ -20,6 +29,7 @@ const Jweet = ({jweetObj, isOwner}: any) => {
 
     const onSubmit = async (event: any) => {
         event.preventDefault();
+        // dbService의 update 기능 실행.
         await dbService.doc(`jweets/${jweetObj.id}`).update({
             text: newJweet
         });
