@@ -18,8 +18,10 @@ function App() {
           uid: user.uid,
           updateProfile: (args: { displayName?: string | null | undefined; photoURL?: string | null | undefined; }) => user.updateProfile(args)
         });
+      }else {
+        setUserObj(null);
+        setInit(true);
       }
-      setInit(true);
     })
   }, []);
   // init 값이 false라면 router를 숨기기 때문에 true로 변경 시켜줘야 된다.

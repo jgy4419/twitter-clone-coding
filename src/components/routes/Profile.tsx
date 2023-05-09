@@ -25,6 +25,7 @@ const Profile = ({userObj, refreshUser}: IProfileProps) => {
     const onLogOutClick = () => {
         authService.signOut();
         navigation('/');
+        refreshUser();
     }
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewDisplayName(e.target.value)
